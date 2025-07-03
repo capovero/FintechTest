@@ -1,5 +1,4 @@
-version: '3.8'
-
+version: "3.9"  
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -15,6 +14,26 @@ services:
       POSTGRES_DB: spreads
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5544:5432"  
+  datafetcher:
+    build:
+      context: ./DataFetcher
+    ports:
+      - "5001:8080"
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  spreadcalculator:
+    build:
+      context: ./SpreadCalculator
+    ports:
+      - "5002:8080"
+    depends_on:
+      - rabbitmq
+      - postgres
 
 volumes:
-  pgdata:  
+  pgdata:
+
