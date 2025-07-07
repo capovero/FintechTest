@@ -1,41 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
-using SpreadCalculator.Domain.Entities;
 using SpreadCalculator.Domain.Interfaces;
 
-namespace SpreadCalculator.API.Controllers;
-
+namespace SpreadCalculator.API.Controllers
+{
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/[controller]")] 
     public class SpreadController : ControllerBase
     {
-        private readonly ISpreadRepository _repository;
+        private readonly ISpreadRepository _spreadRepository;
 
-        public SpreadController(ISpreadRepository repository)
+        public SpreadController(ISpreadRepository spreadRepository)
         {
-            _repository = repository;
+            _spreadRepository = spreadRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SpreadResult>>> GetAll()
+        public async Task<IActionResult> Get()
         {
-            var results = await _repository.GetAllAsync();
-            return Ok(results);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<SpreadResult>> GetById(int id)
-        {
-            var result = await _repository.GetByIdAsync(id);
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<SpreadResult>> Create([FromBody] SpreadResult newSpread)
-        {
-            var created = await _repository.AddAsync(newSpread);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var spreads = await _spreadRepository.GetSpreadsAsync();
+            return Ok(spreads);
         }
     }
+}

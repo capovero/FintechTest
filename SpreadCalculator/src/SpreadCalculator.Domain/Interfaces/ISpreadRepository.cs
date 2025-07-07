@@ -1,11 +1,12 @@
 using SpreadCalculator.Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SpreadCalculator.Domain.Interfaces
 {
     public interface ISpreadRepository
     {
-        Task<List<SpreadResult>> GetAllAsync();
-        Task<SpreadResult?> GetByIdAsync(int id);
-        Task<SpreadResult> AddAsync(SpreadResult spread);
+        Task<IEnumerable<SpreadResult>> GetSpreadsAsync();
+        Task AddSpreadAsync(SpreadResult spread);
     }
 }

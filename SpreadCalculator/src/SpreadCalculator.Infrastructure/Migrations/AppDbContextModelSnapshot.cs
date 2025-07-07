@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SpreadCalculator.Infrastructure;
+using SpreadCalculator.Infrastructure.Configurations;
 
 #nullable disable
 
-namespace SpreadCalculator.Infrastructure.Configurations.Migrations
+namespace SpreadCalculator.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250704134643_InitialCreate")]
-    partial class InitialCreate
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +36,7 @@ namespace SpreadCalculator.Infrastructure.Configurations.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,8)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Symbol")
                         .IsRequired()
@@ -51,7 +48,7 @@ namespace SpreadCalculator.Infrastructure.Configurations.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FuturePrices");
+                    b.ToTable("FuturePrices", (string)null);
                 });
 
             modelBuilder.Entity("SpreadCalculator.Domain.Entities.SpreadResult", b =>
@@ -63,17 +60,17 @@ namespace SpreadCalculator.Infrastructure.Configurations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("FarPrice")
-                        .HasColumnType("decimal(18,8)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("NearPrice")
-                        .HasColumnType("decimal(18,8)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SpreadResults");
+                    b.ToTable("SpreadResults", (string)null);
                 });
 #pragma warning restore 612, 618
         }

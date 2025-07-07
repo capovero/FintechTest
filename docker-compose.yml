@@ -1,38 +1,61 @@
-version: "3.9"  
-services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
+version: "3.9"
+
+services:
   postgres:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespw
+      POSTGRES_PASSWORD: unitydayn      # ← пароль должен совпадать с тем, что в appsettings
       POSTGRES_DB: spreads
+    ports:
+      - "5544:5432"                     # порт для доступа с хоста
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
     ports:
-      - "5544:5432"  
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   datafetcher:
     build:
       context: ./DataFetcher
+      dockerfile: Dockerfile
     ports:
-      - "5001:8080"
+      - "5001:8080"                     # внутри контейнера сервис слушает на 8080
     depends_on:
-      - rabbitmq
-      - postgres
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080   # чтобы слушать все интерфейсы
 
   spreadcalculator:
     build:
       context: ./SpreadCalculator
+      dockerfile: Dockerfile
     ports:
-      - "5002:8080"
+      - "5002:8080"                     # Swagger и API на localhost:5002
     depends_on:
-      - rabbitmq
-      - postgres
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080   # слушать все интерфейсы
 
 volumes:
   pgdata:

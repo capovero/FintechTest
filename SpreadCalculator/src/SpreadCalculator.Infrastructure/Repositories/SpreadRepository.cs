@@ -1,27 +1,31 @@
 using Microsoft.EntityFrameworkCore;
 using SpreadCalculator.Domain.Entities;
 using SpreadCalculator.Domain.Interfaces;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using SpreadCalculator.Infrastructure.Configurations;
 
 namespace SpreadCalculator.Infrastructure.Repositories
 {
     public class SpreadRepository : ISpreadRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _dbContext;
 
-        public SpreadRepository(AppDbContext context) => _context = context;
-
-        public async Task<List<SpreadResult>> GetAllAsync() =>
-            await _context.SpreadResults.ToListAsync();
-
-        public async Task<SpreadResult?> GetByIdAsync(int id) =>
-            await _context.SpreadResults.FindAsync(id);
-
-        public async Task<SpreadResult> AddAsync(SpreadResult spread)
+        public SpreadRepository(AppDbContext dbContext)
         {
-            var entry = await _context.SpreadResults.AddAsync(spread);
-            await _context.SaveChangesAsync();
-            return entry.Entity;
+            _dbContext = dbContext;
+        }
+
+        public async Task<IEnumerable<SpreadResult>> GetSpreadsAsync()
+        {
+            return await _dbContext.SpreadResults.ToListAsync();
+            
+        }
+
+        public async Task AddSpreadAsync(SpreadResult spread)
+        {
+            await _dbContext.SpreadResults.AddAsync(spread);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

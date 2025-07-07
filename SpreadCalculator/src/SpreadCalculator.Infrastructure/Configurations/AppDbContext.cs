@@ -1,22 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using SpreadCalculator.Domain.Entities;
+using SpreadCalculator.Infrastructure.Configurations;
 
-namespace SpreadCalculator.Infrastructure;
-
-public class AppDbContext : DbContext
+namespace SpreadCalculator.Infrastructure.Configurations
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public class AppDbContext : DbContext
     {
-        
-    }
+        public DbSet<SpreadResult> SpreadResults { get; set; }
+        public DbSet<FuturePrice> FuturePrices { get; set; }
 
-    public DbSet<FuturePrice> FuturePrices { get; set; }
-    public DbSet<SpreadResult> SpreadResults { get; set; }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfiguration(new FuturePriceConfiguration());
-        modelBuilder.ApplyConfiguration(new SpreadResultConfiguration());
-        base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new SpreadResultConfiguration());
+            modelBuilder.ApplyConfiguration(new FuturePriceConfiguration());
+        }
     }
 }

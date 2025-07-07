@@ -2,21 +2,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SpreadCalculator.Domain.Entities;
 
-public class SpreadResultConfiguration : IEntityTypeConfiguration<SpreadResult>
+namespace SpreadCalculator.Infrastructure.Configurations
 {
-    public void Configure(EntityTypeBuilder<SpreadResult> builder)
+    public class SpreadResultConfiguration : IEntityTypeConfiguration<SpreadResult>
     {
-        builder.HasKey(x => x.Id);
+        public void Configure(EntityTypeBuilder<SpreadResult> builder)
+        {
+            builder.ToTable("SpreadResults");
 
-        builder.Property(x => x.NearPrice)
-            .HasColumnType("decimal(18,8)");
+            builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.FarPrice)
-            .HasColumnType("decimal(18,8)");
+            builder.Property(x => x.NearPrice)
+                .HasColumnType("decimal(18,2)");
 
-        builder.Ignore(x => x.Spread); 
+            builder.Property(x => x.FarPrice)
+                .HasColumnType("decimal(18,2)");
 
-        builder.Property(x => x.Timestamp)
-            .IsRequired();
+            builder.Ignore(x => x.Spread);
+
+            builder.Property(x => x.Timestamp)
+                .IsRequired();
+        }
     }
 }

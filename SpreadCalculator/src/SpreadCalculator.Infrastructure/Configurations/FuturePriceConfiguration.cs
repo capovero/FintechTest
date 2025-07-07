@@ -2,24 +2,29 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SpreadCalculator.Domain.Entities;
 
-public class FuturePriceConfiguration : IEntityTypeConfiguration<FuturePrice>
+namespace SpreadCalculator.Infrastructure.Configurations
 {
-    public void Configure(EntityTypeBuilder<FuturePrice> builder)
+    public class FuturePriceConfiguration : IEntityTypeConfiguration<FuturePrice>
     {
-        builder.HasKey(x => x.Id);
+        public void Configure(EntityTypeBuilder<FuturePrice> builder)
+        {
+            builder.ToTable("FuturePrices");
 
-        builder.Property(x => x.Symbol)
-            .IsRequired()
-            .HasMaxLength(50);
+            builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.ContractCode)
-            .IsRequired()
-            .HasMaxLength(50);
+            builder.Property(x => x.Symbol)
+                .IsRequired()
+                .HasMaxLength(50);
 
-        builder.Property(x => x.Price)
-            .HasColumnType("decimal(18,8)");
+            builder.Property(x => x.ContractCode)
+                .IsRequired()
+                .HasMaxLength(50);
 
-        builder.Property(x => x.Timestamp)
-            .IsRequired();
+            builder.Property(x => x.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(x => x.Timestamp)
+                .IsRequired();
+        }
     }
 }
