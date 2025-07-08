@@ -1,4 +1,3 @@
-// SpreadCalculator.API/Services/RabbitMqBackgroundService.cs
 using System;
 using System.Collections.Concurrent;
 using System.Text;
@@ -23,8 +22,7 @@ namespace SpreadCalculator.API.Services
         private readonly ILogger<RabbitMqBackgroundService> _logger;
         private IConnection? _connection;
         private IModel? _channel;
-
-        // Ключ — символ инструмента, значение — две последние цены
+        
         private readonly ConcurrentDictionary<string, FuturePrice[]> _priceCache = new();
 
         private const string QueueName = "future_prices_queue";
@@ -37,7 +35,6 @@ namespace SpreadCalculator.API.Services
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            // Конфигурируем и открываем подключение
             var factory = new ConnectionFactory
             {
                 HostName = "rabbitmq",
@@ -88,7 +85,6 @@ namespace SpreadCalculator.API.Services
         {
             _logger.LogInformation(">>> Caching price: {ContractCode} = {Price}", price.ContractCode, price.Price);
 
-            // Добавляем цену в кеш (два слота)
             var pair = _priceCache.GetOrAdd(price.Symbol, _ => new FuturePrice[2]);
 
             if (pair[0] == null)
@@ -101,13 +97,11 @@ namespace SpreadCalculator.API.Services
             }
             else
             {
-                // если оба заняты — начинаем отсчёт заново
                 pair[0] = price;
                 pair[1] = null;
                 return;
             }
 
-            // Когда оба слота заполнены — считаем и сохраняем
             if (pair[0] != null && pair[1] != null)
             {
                 var near = pair[0]!;
@@ -117,7 +111,6 @@ namespace SpreadCalculator.API.Services
                 _logger.LogInformation(">>> Calculated spread: Near={Near}, Far={Far}, Spread={Spread}",
                     near.Price, far.Price, spreadValue);
 
-                // Собираем результат
                 var result = new SpreadResult
                 {
                     Timestamp = DateTime.UtcNow,
@@ -125,7 +118,6 @@ namespace SpreadCalculator.API.Services
                     FarPrice  = far.Price
                 };
 
-                // Сохраняем в БД
                 using var scope = _serviceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 _logger.LogInformation(">>> Saving SpreadResult to DB...");
@@ -133,7 +125,6 @@ namespace SpreadCalculator.API.Services
                 await db.SaveChangesAsync();
                 _logger.LogInformation(">>> Saved SpreadResult [Id={Id}]", result.Id);
 
-                // Чистим кеш по этому символу
                 _priceCache.TryRemove(price.Symbol, out _);
             }
         }
